@@ -1,0 +1,317 @@
+<div align="center">
+
+
+**TMM - Vulnerability Extraction from Security Reports using LLMs**
+
+_Automated · Structured · Multi-LLM_
+
+![Python](https://img.shields.io/badge/Python-3.8+-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+![status](https://img.shields.io/badge/status-active-orange)
+![update](https://img.shields.io/badge/last%20update-Mar%202026-lightgrey)
+
+</div>
+
+# TMM
+
+**TMM** is an automated tool for extracting and structuring vulnerabilities from heterogeneous PDF reports produced by security scanners. Its LLM-based pipeline combines adaptive chunking and scanner-aware prompting to convert unstructured findings into consistent, analysis-ready vulnerability records, with standardized outputs and quality validation.
+
+
+
+**Use Cases:**
+
+- **Security Analysis**: Automated extraction of vulnerabilities from scanner reports
+- **Enterprise Integration**: Support for CAIS formats for corporate systems
+- **Research and Development**: Comparative evaluation of different LLMs
+
+## README Structure
+
+- [Considered Badges](#considered-badges)
+- [Basic Information](#basic-information)
+- [Dependencies](#dependencies)
+- [Security Concerns](#security-concerns)
+- [Installation](#installation)
+- [Minimum Test](#minimum-test)
+- [Experiments](#experiments)
+- [Documentation](#documentation)
+- [LICENSE](#license)
+
+## Considered Badges
+
+The following badges are considered for evaluation: **Available**, **Functional**, **Sustainable**, and **Reproducible**.
+
+## Basic Information
+
+### Execution Environment
+
+| Component   | Requirement                                      |
+| ----------- | ------------------------------------------------ |
+| **OS**      | Windows 10+, Linux (Ubuntu 20.04+), macOS 10.15+ |
+| **Python**  | 3.8+ (recommended: 3.10+)                        |
+| **RAM**     | 4GB+ (8GB recommended for large PDFs)            |
+| **Disk**    | 500MB for dependencies + space for outputs       |
+| **Network** | Internet connection required for LLM API calls   |
+
+### Supported LLMs
+
+| Provider | Models                |
+| -------- | --------------------- |
+| OpenAI   | GPT-4, GPT-5          |
+| Groq     | Llama3, Llama4, Qwen3 |
+| DeepSeek | deepseek-chat         |
+
+## Dependencies
+
+### Main Dependencies
+
+```
+langchain>=0.1.0,<0.3.0          # LLM framework
+langchain-openai>=0.1.0,<0.2.0   # OpenAI integration
+tiktoken>=0.5.1,<0.7.0           # Tokenization
+pdfplumber>=0.10.0,<0.12.0       # PDF extraction
+python-dotenv>=0.21.0            # Environment variables
+tqdm>=4.0.0,<5.0.0               # Progress bars
+pandas>=1.3.0,<3.0.0             # Data manipulation
+openpyxl>=3.0.0,<4.0.0           # Excel export
+```
+
+### Metrics Evaluation (Optional)
+
+```
+bert-score>=0.3.0,<0.4.0         # BERTScore
+rouge-score>=0.1.0               # ROUGE
+torch>=1.10.0,<3.0.0             # PyTorch (required for BERTScore)
+rapidfuzz>=3.0.0,<4.0.0          # Fuzzy matching
+```
+
+**Third-party resources:**
+
+- LLM API keys from providers (OpenAI, Groq, DeepSeek)
+- Sample PDF reports from security scanners (OpenVAS, Tenable WAS)
+
+See [docs/INSTALL.md](docs/INSTALL.md) for complete dependency details.
+
+## Security Concerns
+
+**API Keys**: The tool requires LLM API keys configured in a `.env` file. Never commit this file to public repositories.
+
+**PDF Processing**: The tool processes PDF files locally. No data is sent to external services except for the LLM API calls (text chunks for vulnerability extraction).
+
+**Network**: The tool makes HTTPS requests to LLM APIs. Ensure your network allows outbound connections to:
+
+- `api.openai.com` (OpenAI)
+- `api.groq.com` (Groq)
+- `api.deepseek.com` (DeepSeek)
+
+## Installation
+
+### 1. Clone the Repository
+
+> **Anonymous review link**: For double-blind peer review, browse the anonymized code at (web browsing/zip download only — this service does not support `git clone`).
+
+### 2. Create Virtual Environment
+
+```bash
+# Windows
+python3 -m venv .venv
+.venv\Scripts\activate
+
+# Linux/Mac
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure API Keys
+
+Create/edit the `.env` file:
+
+```env
+API_KEY_GPT4 = "your-openai-api-key"
+API_KEY_LLAMA3 = "your-groq-api-key"
+API_KEY_DEEPSEEK = "your-deepseek-api-key"
+```
+
+See [docs/CONFIG.md](docs/CONFIG.md) for all configuration options.
+
+## Minimum Test
+
+After installation, run this minimal test to verify the setup:
+
+### 1. Run Extraction
+
+```bash
+# Basic extraction using Groq
+
+# Windows
+python main.py --input test\openvas\OpenVAS_JuiceShop.pdf --llm llama3 --scanner openvas --allow-duplicates --output-file openvas_test
+
+# Linux/macOS
+python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm llama3 --scanner openvas --allow-duplicates --output-file openvas_test
+```
+
+**Expected result**: openvas_test.json with extracted vulnerabilities and visual_layout.txt file
+
+### 2. Verify Output
+
+Check the generated JSON file for extracted vulnerabilities:
+
+```bash
+# Windows
+python tools/summarize_vulnerabilities.py --input openvas_test.json
+
+# Linux/macOS
+python3 tools/summarize_vulnerabilities.py --input openvas_test.json
+```
+
+**Expected result**: Terminal print with summary of all extracted vulnerabilities in tabular format.
+
+## Experiments
+
+This section describes how to reproduce the main claims from the paper.
+
+> **Note**: The execution times are based on AMD Ryzen 5 5600G, 32GB RAM, 1TB SSD, Windows 11. Actual times may vary depending on system specifications, network latency, and API response times.
+
+### Claim #1: Multi-LLM Vulnerability Extraction
+
+**Description**: TMM extracts vulnerabilities from PDF reports using multiple LLM providers (DeepSeek, GPT-4, LLaMa 3, etc).
+
+**Configuration**: Edit `.env` with API keys for desired providers.
+
+**Execution**:
+
+```bash
+# Extract using DeepSeek (best cost-benefit in the paper) and other LLMs for comparison
+
+# Windows
+python main.py --input test\openvas\OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test_deepseek
+python main.py --input test\openvas\OpenVAS_JuiceShop.pdf --llm gpt4 --scanner openvas --allow-duplicates --output-file openvas_test_gpt4
+python main.py --input test\openvas\OpenVAS_JuiceShop.pdf --llm llama3 --scanner openvas --allow-duplicates --output-file openvas_test_llama3
+
+# Linux/macOS
+python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test_deepseek
+python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm gpt4 --scanner openvas --allow-duplicates --output-file openvas_test_gpt4
+python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm llama3 --scanner openvas --allow-duplicates --output-file openvas_test_llama3
+```
+
+**Expected time**: ~12 minutes for all extractions
+
+- Deepseek: ~6 minutes
+- GPT4: ~5 minutes
+- LLAMA3: ~45 seconds
+
+**Expected result**: openvas_test<llm_name>.json files with extracted vulnerabilities containing fields like `Name`, `description`, `severity`, `cvss`, `port`, `references`, etc.
+
+### Claim #2: Quality Evaluation with BERTScore/ROUGE-L
+
+**Description**: The tool evaluates extraction quality against ground truth baselines using BERTScore and ROUGE-L metrics, with similarity scores categorized as: Highly Similar (≥0.7), Moderately Similar (0.6-0.7), Low Similarity (0.4-0.6), and Divergent (<0.4).
+
+**Execution**:
+
+```bash
+# Evaluate with BERTScore and ROUGE-L
+
+# Windows
+python metrics/bert/compare_extractions_bert.py --baseline-file test\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_bert --allow-duplicates
+python metrics/rouge/compare_extractions_rouge.py --baseline-file test\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_rouge --allow-duplicates
+
+# Linux/macOS
+python3 metrics/bert/compare_extractions_bert.py --baseline-file test/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_bert --allow-duplicates
+python3 metrics/rouge/compare_extractions_rouge.py --baseline-file test/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_rouge --allow-duplicates
+```
+
+**Expected time**: ~15 seconds for BERT and ~3 seconds for ROUGE
+
+**Expected result**: XLSX files with BERTScore and ROUGE-L metrics in ./results_bert and ./results_rouge directories.
+
+### Claim #3: Large-Scale Reproducibility
+
+**Description**: TMM supports batch experiments across multiple reports, LLMs, and runs with checkpoint support to resume interrupted executions.
+
+**Execution**:
+
+```bash
+# Run full experiment suite
+
+# Windows
+python tools/run_experiments.py --input-dir test\openvas --llm deepseek --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
+
+# Linux/macOS
+python3 tools/run_experiments.py --input-dir test/openvas --llm deepseek --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
+```
+
+**Expected time**: ~40 minutes
+
+**Expected result**: Organized results in `results_runs/` with extracted vulnerabilities (JSON per run; pass `--convert xlsx` to also emit XLSX), BERTScore and ROUGE-L evaluation reports, an `aggregated_metrics.xlsx` summary, and a Markdown final report with token usage and cost estimation. Charts and visualizations are saved in `plot_runs/`.
+
+> **Note**:
+> For practical reasons (time, token cost, and infrastructure), this experiment does not use the same set of reports and LLMs as the paper. Here, a simplified version was used: only 1 report and 1 LLM (deepseek), chosen for its cost-effectiveness and performance.
+
+### Claim #4: Consolidated Multi-LLM Metrics Report (TMM_metrics_run.py)
+
+**Description**: TMM consolidates metrics for multiple LLM extractions against a single ground-truth baseline into one XLSX report, with per-field tables (ROUGE-L, Token-F1, Soft-F1, CVSS/Port/Protocol/Severity exact match) and comparison charts/heatmaps across all versions.
+
+**Execution**:
+
+```bash
+# All 5 LLMs, V3
+
+# Windows
+python tools/TMM_metrics_run.py `
+  --baseline baselines/native/vulnnet_scans_openvas.csv `
+  --versions TMMv3:artifacts/v3/openvas_129_dockers/deepseek_v3.csv:deepseek `
+             TMMv3:artifacts/v3/openvas_129_dockers/gpt4_v3.csv:gpt4 `
+             TMMv3:artifacts/v3/openvas_129_dockers/gpt5_v3.csv:gpt5 `
+             TMMv3:artifacts/v3/openvas_129_dockers/llama3_v3.csv:llama3 `
+             TMMv3:artifacts/v3/openvas_129_dockers/llama4_v3.csv:llama4 `
+  --xlsx artifacts/v3/TMM_metrics_v3.xlsx
+
+# Linux/macOS
+python3 tools/TMM_metrics_run.py \
+  --baseline baselines/native/vulnnet_scans_openvas.csv \
+  --versions TMMv3:artifacts/v3/openvas_129_dockers/deepseek_v3.csv:deepseek \
+             TMMv3:artifacts/v3/openvas_129_dockers/gpt4_v3.csv:gpt4 \
+             TMMv3:artifacts/v3/openvas_129_dockers/gpt5_v3.csv:gpt5 \
+             TMMv3:artifacts/v3/openvas_129_dockers/llama3_v3.csv:llama3 \
+             TMMv3:artifacts/v3/openvas_129_dockers/llama4_v3.csv:llama4 \
+  --xlsx artifacts/v3/TMM_metrics_v3.xlsx
+```
+
+**Expected time**: ~2-4 minutes (5 LLMs against the full native baseline)
+
+**Expected result**: `artifacts/v3/TMM_metrics_v3.xlsx` with one sheet per metric/chart (overview heatmap, per-field ROUGE-L/Token-F1/Soft-F1, CVSS/Port/Protocol/Severity confusion matrices) comparing all 5 LLMs against `baselines/native/vulnnet_scans_openvas.csv`.
+
+> **Note**: The [`dockers/`](dockers/) folder contains the original PDF reports used to produce each per-version extraction, consolidated per version under `artifacts/<version>/openvas_129_dockers/` (e.g. [`artifacts/v3/openvas_129_dockers/`](artifacts/v3/openvas_129_dockers/)). See [docs/INVENTORY.md](docs/INVENTORY.md) for the full list of the 129 scanned Docker targets.
+
+---
+
+For detailed experiment configurations and paper results, see [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
+
+## Documentation
+
+Detailed documentation is organized in separate files:
+
+| Document                                           | Description                          |
+| -------------------------------------------------- | ------------------------------------ |
+| [docs/INSTALL.md](docs/INSTALL.md)                 | Detailed installation guide          |
+| [docs/USAGE.md](docs/USAGE.md)                     | Complete usage guide with examples   |
+| [docs/CONFIG.md](docs/CONFIG.md)                   | API keys and token configuration     |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)       | Code structure and components        |
+| [docs/EXTENSIBILITY.md](docs/EXTENSIBILITY.md)     | Adding new scanners and LLMs         |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common errors and optimization tips  |
+| [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md)         | Experimental validation details      |
+| [docs/INVENTORY.md](docs/INVENTORY.md)             | Container inventory and distribution |
+
+## LICENSE
+
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+- **Permitted use**: Free for use, modification, distribution, and sublicensing, including for commercial purposes.
+- **Notice**: Provided "as is", without warranties. The user is responsible for use and secure configuration of data and keys.
+
+See the [LICENSE](LICENSE) file for the full license text.

@@ -1,0 +1,48 @@
+import argparse
+import os
+from pathlib import Path
+
+def parse_arguments_common(require_model: bool = False, extra_args: list | None = None):
+    """
+    Standard parser for metric scripts (bert, rouge, etc).
+    Args:
+        require_model: if True, require the --model argument.
+        extra_args: optional list of (args_tuple, kwargs_dict) to add additional
+            metric-specific flags. Example::
+
+                parse_arguments_common(extra_args=[
+                    (("--schema-mode",), {"choices": ["auto","v2","v3"], "default": "auto"}),
+                ])
+
+    Returns:
+        argparse.Namespace with the arguments.
+    """
+    parser = argparse.ArgumentParser(
+        description='Compare extractions with baseline using metrics.'
+    )
+    parser.add_argument('--baseline-file', dest='baseline_file', type=str, required=True,
+                       help='Path to baseline Excel file')
+    parser.add_argument('--extraction-file', dest='extraction_file', type=str, required=True,
+                       help='Path to Excel file with extractions')
+    parser.add_argument('--output-dir', dest='output_dir', type=str, required=False,
+                       help='Directory to save results (optional, default: metrics/<metric>/results/)')
+    parser.add_argument('--llm', type=str, required=require_model, default=None,
+                       help='LLM model name used (optional, but recommended for naming output file)')
+    parser.add_argument('--allow-duplicates', dest='allow_duplicates', action='store_true',
+                       help='Allow legitimate duplicates in baseline during evaluation')
+    for args_tuple, kwargs in (extra_args or []):
+        parser.add_argument(*args_tuple, **kwargs)
+    args = parser.parse_args()
+    # Basic validation
+    if not os.path.isfile(args.baseline_file):
+        parser.error(f"Baseline file not found: {args.baseline_file}")
+    if not os.path.isfile(args.extraction_file):
+        parser.error(f"Extraction file not found: {args.extraction_file}")
+    # If --output-dir is not specified, fall back to metrics/results/. Per-run
+    # outputs are normally written into the run's own directory, so this only
+    # fires when the script is invoked directly without that flag.
+    if not args.output_dir:
+        args.output_dir = str(Path('metrics/results'))
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return args
