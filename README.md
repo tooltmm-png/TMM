@@ -107,7 +107,7 @@ See [docs/INSTALL.md](docs/INSTALL.md) for complete dependency details.
 
 ### 1. Clone the Repository
 
-> **Anonymous review link**: For double-blind peer review, browse the anonymized code at (web browsing/zip download only — this service does not support `git clone`).
+git clone https://github.com/tooltmm-png/TMM.git
 
 ### 2. Create Virtual Environment
 
