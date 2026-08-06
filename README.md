@@ -316,7 +316,7 @@ Done.  ->  artifacts/TMM_metrics_all_versions.xlsx
 
 ---
 
-For detailed experiment configurations and paper results, see [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
+For detailed experiment configurations, see [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
 
 ## Documentation
 
