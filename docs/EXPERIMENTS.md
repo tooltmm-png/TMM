@@ -55,11 +55,8 @@ python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm
 
 **Key Features:**
 
-- Runs extraction for every (report, LLM, run) combination, then runs all metrics in a parallel post-pass via `tools/run_metrics.py`
+- Runs extraction for every (report, LLM, run) combination, then runs all metrics in a parallel post-pass via `tools/TMM_metrics_run.py`
 - One scanner per invocation — run twice for different scanners
-- Checkpoint support: resumes interrupted executions via `--checkpoint-file`
-- **Single Markdown final report**: One `final_report_*.md` per orchestrator run; per-run reports are suppressed
-- BERT/ROUGE run in-process during the metrics pass so the transformer model loads once instead of once per run
 
 **Parameters:**
 
