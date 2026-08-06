@@ -74,42 +74,6 @@ python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm
 - `--skip-metrics`: Skip the metrics + aggregator post-pass
 - `--checkpoint-file`: Checkpoint file to resume from
 
-### Output Structure
-
-```
-<output-dir>/
-├── <baseline>/<llm>/run<N>/
-│   ├── <baseline>_<llm>_run<N>.json     # extraction (native; xlsx only if --convert xlsx)
-│   ├── bert_comparison_*.xlsx
-│   ├── rouge_comparison_*.xlsx
-│   ├── entity_metrics_*.xlsx
-│   ├── coverage_*.xlsx
-│   ├── severity_confusion_*.xlsx
-│   └── schema_report_*.json
-├── aggregated_metrics.xlsx              # mean ± std across runs
-└── final_report_*.md                    # single summary
-```
-- Final report with timing and token cost analysis
-- Checkpoint files for resuming interrupted runs
-
-### Automatic Chart Generation
-
-Charts are automatically generated at the end of `run_experiments.py` execution. To generate charts manually:
-
-```bash
-# Windows
-python tools/process_results.py
-
-# Linux/macOS
-python3 tools/process_results.py
-```
-
-Generates:
-
-- Similarity category distribution charts (stacked bar)
-- Metric heatmaps (BERT/ROUGE) per LLM and baseline
-- Statistical summaries and visualizations
-
 ## Deduplication Strategies
 
 ### OpenVAS
