@@ -144,7 +144,7 @@ After installation, run this minimal test to verify the setup:
 ### 1. Run Extraction
 
 ```bash
-# Basic extraction using Groq
+# Basic extraction using DEEPSEEK
 
 # Windows
 python main.py --input baselines\openvas\OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test
@@ -195,7 +195,7 @@ python3 main.py --input baselines/openvas/OpenVAS_JuiceShop.pdf --llm deepseek -
 
 **Expected time**: ~6 minutes (single DeepSeek extraction over the API)
 
-**Expected resources**: Network-bound (LLM API calls); no GPU required. One DeepSeek extraction call over the API (a fraction of a US dollar in tokens — see the cost table in [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md#token-consumption-and-cost)).
+**Expected resources**: Network-bound (LLM API calls); no GPU required. One DeepSeek extraction call over the API.
 
 **Expected result**: `openvas_test_deepseek.json` with extracted vulnerabilities containing fields like `Name`, `description`, `severity`, `cvss`, `port`, `references`, etc. Run `python tools/summarize_vulnerabilities.py --input openvas_test_deepseek.json` to print a terminal summary; on a real DeepSeek/JuiceShop run this looks like:
 
