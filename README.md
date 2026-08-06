@@ -177,27 +177,38 @@ This section describes how to reproduce the main claims from the paper.
 
 ### Claim #1: Multi-LLM Vulnerability Extraction
 
-**Description**: TMM extracts vulnerabilities from PDF reports using multiple LLM providers (DeepSeek, GPT-4, LLaMa 3, etc).
+**Description**: TMM extracts vulnerabilities from PDF reports using multiple LLM providers (DeepSeek, GPT-4, LLaMa 3, etc). The test report is OWASP Juice Shop (34 vulnerabilities in the curated baseline).
 
 **Configuration**: Edit `.env` with API keys for desired providers.
 
 **Execution**:
 
 ```bash
-# Extract using DeepSeek (best cost-benefit in the paper) and other LLMs for comparison
+# Extract using DeepSeek (best cost-benefit in the paper)
 
 # Windows
 python main.py --input baselines\openvas\OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test_deepseek
 
 # Linux/macOS
-python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test_deepseek
+python3 main.py --input baselines/openvas/OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test_deepseek
 ```
 
-**Expected time**: ~12 minutes for all extractions
+**Expected time**: ~6 minutes (single DeepSeek extraction over the API)
 
-- Deepseek: ~6 minutes
+**Expected resources**: Network-bound (LLM API calls); no GPU required. One DeepSeek extraction call over the API (a fraction of a US dollar in tokens — see the cost table in [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md#token-consumption-and-cost)).
 
-**Expected result**: openvas_test<llm_name>.json files with extracted vulnerabilities containing fields like `Name`, `description`, `severity`, `cvss`, `port`, `references`, etc.
+**Expected result**: `openvas_test_deepseek.json` with extracted vulnerabilities containing fields like `Name`, `description`, `severity`, `cvss`, `port`, `references`, etc. Run `python tools/summarize_vulnerabilities.py --input openvas_test_deepseek.json` to print a terminal summary; on a real DeepSeek/JuiceShop run this looks like:
+
+```
+SEVERITY   | NAME                                               | CVSS    | PORT/PROTO | CVE
+========================================================================================================================
+HIGH       | SMTP too long line                                 | CVSS 7.5 | 25/tcp     | N/A
+MEDIUM     | Check if Mailserver answer to VRFY and EXPN requests | CVSS 5.0 | 25/tcp     | N/A
+LOG        | Postfix SMTP Server Detection                      | CVSS 0.0 | 25/tcp     | N/A
+...        | (37 records extracted total)
+========================================================================================================================
+Total vulnerabilities: 37
+```
 
 ### Claim #2: Quality Evaluation with BERTScore/ROUGE-L
 
@@ -209,74 +220,97 @@ python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm deepseek --scan
 # Evaluate with BERTScore and ROUGE-L
 
 # Windows
-python metrics/bert/compare_extractions_bert.py --baseline-file baselines\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_bert --allow-duplicates
-python metrics/rouge/compare_extractions_rouge.py --baseline-file baselines\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_rouge --allow-duplicates
+python metrics\pipelines\compare_extractions.py --baseline-file baselines\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --llm deepseek --output-dir results_bert --allow-duplicates --scorer bertscore
+python metrics\pipelines\compare_extractions.py --baseline-file baselines\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --llm deepseek --output-dir results_rouge --allow-duplicates --scorer rouge_l
 
 # Linux/macOS
-python3 metrics/bert/compare_extractions_bert.py --baseline-file baselines/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_bert --allow-duplicates
-python3 metrics/rouge/compare_extractions_rouge.py --baseline-file baselines/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_rouge --allow-duplicates
+python3 metrics/pipelines/compare_extractions.py --baseline-file baselines/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --llm deepseek --output-dir results_bert --allow-duplicates --scorer bertscore
+python3 metrics/pipelines/compare_extractions.py --baseline-file baselines/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --llm deepseek --output-dir results_rouge --allow-duplicates --scorer rouge_l
 ```
 
-**Expected time**: ~15 seconds for BERT and ~3 seconds for ROUGE
+**Expected time**: ~15 seconds for BERTScore (plus a one-time model download on first use) and ~3 seconds for ROUGE-L
 
-**Expected result**: XLSX files with BERTScore and ROUGE-L metrics in ./results_bert and ./results_rouge directories.
+**Expected resources**: ~2 GB RAM during the BERTScore pass (PyTorch); ~300 MB extra disk for the DistilBERT model on first use. ROUGE-L is CPU-only and lightweight.
 
-### Claim #3: Large-Scale Reproducibility
+**Expected result**: XLSX files with BERTScore and ROUGE-L metrics in `./results_bert` and `./results_rouge`. Real console output from this exact command pair, run against the DeepSeek/JuiceShop extraction:
 
-**Description**: TMM supports batch experiments across multiple reports, LLMs, and runs with checkpoint support to resume interrupted executions.
+```
+Loading BERTScore model: distilbert-base-uncased...
+BERTScore model loaded successfully!
+[BERTSCORE] matched=34/37, fields scored=12
+[BERTSCORE] saved -> results_bert\bert_comparison_vulnerabilities_deepseek.xlsx
 
-**Execution**:
-
-```bash
-# Run full experiment suite
-
-# Windows
-python tools/run_experiments.py --input-dir baselines\openvas --llm deepseek --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
-
-# Linux/macOS
-python3 tools/run_experiments.py --input-dir baselines/openvas --llm deepseek --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
+[ROUGE_L] matched=34/37, fields scored=12
+[ROUGE_L] saved -> results_rouge\rouge_comparison_vulnerabilities_deepseek.xlsx
 ```
 
-**Expected time**: ~40 minutes
-
-**Expected result**: Organized results in `results_runs/` with extracted vulnerabilities (JSON per run; pass `--convert xlsx` to also emit XLSX), BERTScore and ROUGE-L evaluation reports, an `aggregated_metrics.xlsx` summary, and a Markdown final report with token usage and cost estimation. Charts and visualizations are saved in `plot_runs/`.
-
-> **Note**:
-> For practical reasons (time, token cost, and infrastructure), this experiment does not use the same set of reports and LLMs as the paper. Here, a simplified version was used: only 1 report and 1 LLM (deepseek), chosen for its cost-effectiveness and performance.
-
-### Claim #4: Consolidated Multi-LLM Metrics Report (TMM_metrics_run.py)
+### Claim #3: Consolidated Multi-LLM Metrics Report (TMM_metrics_run.py)
 
 **Description**: TMM consolidates metrics for multiple LLM extractions against a single ground-truth baseline into one XLSX report, with per-field tables (ROUGE-L, Token-F1, Soft-F1, CVSS/Port/Protocol/Severity exact match) and comparison charts/heatmaps across all versions.
 
 **Execution**:
 
 ```bash
-# All 5 LLMs, V3
+# All versions combined (V1+V2+V3, 15 LLM x version entries in one report)
 
 # Windows
 python tools/TMM_metrics_run.py `
   --baseline baselines/native/vulnnet_scans_openvas.csv `
-  --versions TMMv3:artifacts/v3/openvas_129_dockers/deepseek_v3.csv:deepseek `
+  --versions TMMv1:artifacts/v1/openvas_129_dockers/deepseek_v1.csv:deepseek `
+             TMMv1:artifacts/v1/openvas_129_dockers/gpt4_v1.csv:gpt4 `
+             TMMv1:artifacts/v1/openvas_129_dockers/gpt5_v1.csv:gpt5 `
+             TMMv1:artifacts/v1/openvas_129_dockers/llama3_v1.csv:llama3 `
+             TMMv1:artifacts/v1/openvas_129_dockers/llama4_v1.csv:llama4 `
+             TMMv2:artifacts/v2/openvas_129_dockers/deepseek_v2.csv:deepseek `
+             TMMv2:artifacts/v2/openvas_129_dockers/gpt4_v2.csv:gpt4 `
+             TMMv2:artifacts/v2/openvas_129_dockers/gpt5_v2.csv:gpt5 `
+             TMMv2:artifacts/v2/openvas_129_dockers/llama3_v2.csv:llama3 `
+             TMMv2:artifacts/v2/openvas_129_dockers/llama4_v2.csv:llama4 `
+             TMMv3:artifacts/v3/openvas_129_dockers/deepseek_v3.csv:deepseek `
              TMMv3:artifacts/v3/openvas_129_dockers/gpt4_v3.csv:gpt4 `
              TMMv3:artifacts/v3/openvas_129_dockers/gpt5_v3.csv:gpt5 `
              TMMv3:artifacts/v3/openvas_129_dockers/llama3_v3.csv:llama3 `
              TMMv3:artifacts/v3/openvas_129_dockers/llama4_v3.csv:llama4 `
-  --xlsx artifacts/v3/TMM_metrics_v3.xlsx
+  --xlsx artifacts/TMM_metrics_all_versions.xlsx
 
 # Linux/macOS
 python3 tools/TMM_metrics_run.py \
   --baseline baselines/native/vulnnet_scans_openvas.csv \
-  --versions TMMv3:artifacts/v3/openvas_129_dockers/deepseek_v3.csv:deepseek \
+  --versions TMMv1:artifacts/v1/openvas_129_dockers/deepseek_v1.csv:deepseek \
+             TMMv1:artifacts/v1/openvas_129_dockers/gpt4_v1.csv:gpt4 \
+             TMMv1:artifacts/v1/openvas_129_dockers/gpt5_v1.csv:gpt5 \
+             TMMv1:artifacts/v1/openvas_129_dockers/llama3_v1.csv:llama3 \
+             TMMv1:artifacts/v1/openvas_129_dockers/llama4_v1.csv:llama4 \
+             TMMv2:artifacts/v2/openvas_129_dockers/deepseek_v2.csv:deepseek \
+             TMMv2:artifacts/v2/openvas_129_dockers/gpt4_v2.csv:gpt4 \
+             TMMv2:artifacts/v2/openvas_129_dockers/gpt5_v2.csv:gpt5 \
+             TMMv2:artifacts/v2/openvas_129_dockers/llama3_v2.csv:llama3 \
+             TMMv2:artifacts/v2/openvas_129_dockers/llama4_v2.csv:llama4 \
+             TMMv3:artifacts/v3/openvas_129_dockers/deepseek_v3.csv:deepseek \
              TMMv3:artifacts/v3/openvas_129_dockers/gpt4_v3.csv:gpt4 \
              TMMv3:artifacts/v3/openvas_129_dockers/gpt5_v3.csv:gpt5 \
              TMMv3:artifacts/v3/openvas_129_dockers/llama3_v3.csv:llama3 \
              TMMv3:artifacts/v3/openvas_129_dockers/llama4_v3.csv:llama4 \
-  --xlsx artifacts/v3/TMM_metrics_v3.xlsx
+  --xlsx artifacts/TMM_metrics_all_versions.xlsx
 ```
 
-**Expected time**: ~2-4 minutes (5 LLMs against the full native baseline)
+**Expected time**: ~10-16 minutes (15 version x LLM entries against the full 6,343-row native baseline; ~1 minute per entry, validated with a single-LLM run)
 
-**Expected result**: `artifacts/v3/TMM_metrics_v3.xlsx` with one sheet per metric/chart (overview heatmap, per-field ROUGE-L/Token-F1/Soft-F1, CVSS/Port/Protocol/Severity confusion matrices) comparing all 5 LLMs against `baselines/native/vulnnet_scans_openvas.csv`.
+**Expected resources**: CPU-only, no GPU required; a few hundred MB RAM and negligible extra disk per entry processed (pure CSV comparison, no network access needed).
+
+**Expected result**: `artifacts/TMM_metrics_all_versions.xlsx` with one sheet per metric/chart (overview heatmap, per-version and per-LLM breakdowns, per-field ROUGE-L/Token-F1/Soft-F1, CVSS/Port/Protocol/Severity confusion matrices) comparing all 15 version x LLM entries (V1/V2/V3 x DeepSeek/GPT-4/GPT-5/LLaMa 3/LLaMa 4) against `baselines/native/vulnnet_scans_openvas.csv`. Real console output for the DeepSeek/V3 entry (repeated once per entry):
+
+```
+  [TMMv3] Loading data...
+  [TMMv3] Name mapping: 1265/1266 LLM names matched
+  [TMMv3] Pairs: 5859 (host+name matched)
+  [TMMv3] description                    ROUGE-L=0.9347  Soft-F1=0.9373
+  [TMMv3] severity Exact=1.0000  F1-macro=1.0000
+  OK
+
+Saved -> artifacts/TMM_metrics_all_versions.xlsx
+Done.  ->  artifacts/TMM_metrics_all_versions.xlsx
+```
 
 > **Note**: The [`dockers/`](dockers/) folder contains the original PDF reports used to produce each per-version extraction, consolidated per version under `artifacts/<version>/openvas_129_dockers/` (e.g. [`artifacts/v3/openvas_129_dockers/`](artifacts/v3/openvas_129_dockers/)). See [docs/INVENTORY.md](docs/INVENTORY.md) for the full list of the 129 scanned Docker targets.
 
