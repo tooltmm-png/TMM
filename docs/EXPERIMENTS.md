@@ -129,13 +129,13 @@ Each run produces sheets for Summary, Overview (global + per-version), All LLMs,
 # Run experiments with specified configurations
 
 # Windows
-python tools/run_experiments.py --input-dir test\openvas --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 5
+python tools/run_experiments.py --input-dir dockers --llm deepseek gpt4 gpt5 llama3 llama4 --scanner openvas --metrics bert rouge --runs-per-model 1
 
 # Linux/macOS
-python3 tools/run_experiments.py --input-dir test/openvas --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 5
+python3 tools/run_experiments.py --input-dir dockers --llm deepseek gpt4 gpt5 llama3 llama4 --scanner openvas --metrics bert rouge --runs-per-model 1
 
 # With allow-duplicates (OpenVAS recommended)
-python tools/run_experiments.py --input-dir test\openvas --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
+python tools/run_experiments.py --input-dir test\openvas --llm deepseek gpt4 gpt5 llama3 llama4 --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
 
 # Resume from checkpoint if interrupted
 
