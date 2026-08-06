@@ -129,13 +129,13 @@ Each run produces sheets for Summary, Overview (global + per-version), All LLMs,
 # Run experiments with specified configurations
 
 # Windows
-python tools/run_experiments.py --input-dir test\openvas --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 5
+python tools/run_experiments.py --input-dir dockers --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 1
 
 # Linux/macOS
-python3 tools/run_experiments.py --input-dir test/openvas --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 5
+python3 tools/run_experiments.py --input-dir dockers --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 1
 
 # With allow-duplicates (OpenVAS recommended)
-python tools/run_experiments.py --input-dir test\openvas --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
+python tools/run_experiments.py --input-dir test\openvas --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 1 --allow-duplicates
 
 # Resume from checkpoint if interrupted
 
@@ -185,7 +185,7 @@ python3 tools/run_experiments.py --checkpoint-file run_checkpoints_2026-03-16T12
 - Final report with timing and token cost analysis
 - Checkpoint files for resuming interrupted runs
 
-### Automatic Chart Generation
+### Automatic Chart Generation for Curated Baseline
 
 Charts are automatically generated at the end of `run_experiments.py` execution. To generate charts manually:
 
