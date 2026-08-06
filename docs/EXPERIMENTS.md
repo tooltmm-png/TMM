@@ -129,21 +129,14 @@ Each run produces sheets for Summary, Overview (global + per-version), All LLMs,
 # Run experiments with specified configurations
 
 # Windows
-python tools/run_experiments.py --input-dir dockers --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 1
+python tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm deepseek --convert csv [--allow-duplicates] [--output-dir <output_directory>]
 
 # Linux/macOS
-python3 tools/run_experiments.py --input-dir dockers --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 1
+python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm deepseek --convert csv [--allow-duplicates] [--output-dir <output_directory>]
 
 # With allow-duplicates (OpenVAS recommended)
-python tools/run_experiments.py --input-dir test\openvas --llm deepseek gpt4 --scanner openvas --metrics bert rouge --runs-per-model 1 --allow-duplicates
+python tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm deepseek --convert csv --allow-duplicates [--output-dir <output_directory>]
 
-# Resume from checkpoint if interrupted
-
-# Windows
-python tools/run_experiments.py --checkpoint-file run_checkpoints_2026-03-16T12-28-08.json
-
-# Linux/macOS
-python3 tools/run_experiments.py --checkpoint-file run_checkpoints_2026-03-16T12-28-08.json
 ```
 
 **Key Features:**
