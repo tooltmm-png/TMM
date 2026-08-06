@@ -57,7 +57,7 @@ The following badges are considered for evaluation: **Available**, **Functional*
 | Provider | Models                |
 | -------- | --------------------- |
 | OpenAI   | GPT-4, GPT-5          |
-| Groq     | Llama3, Llama4, Qwen3 |
+| Groq     | Llama3, Llama4        |
 | DeepSeek | deepseek-chat         |
 
 ## Dependencies
@@ -132,8 +132,6 @@ pip install -r requirements.txt
 Create/edit the `.env` file:
 
 ```env
-API_KEY_GPT4 = "your-openai-api-key"
-API_KEY_LLAMA3 = "your-groq-api-key"
 API_KEY_DEEPSEEK = "your-deepseek-api-key"
 ```
 
@@ -149,10 +147,10 @@ After installation, run this minimal test to verify the setup:
 # Basic extraction using Groq
 
 # Windows
-python main.py --input test\openvas\OpenVAS_JuiceShop.pdf --llm llama3 --scanner openvas --allow-duplicates --output-file openvas_test
+python main.py --input baselines\openvas\OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test
 
 # Linux/macOS
-python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm llama3 --scanner openvas --allow-duplicates --output-file openvas_test
+python3 main.py --input baselines/openvas/OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test
 ```
 
 **Expected result**: openvas_test.json with extracted vulnerabilities and visual_layout.txt file
@@ -189,21 +187,15 @@ This section describes how to reproduce the main claims from the paper.
 # Extract using DeepSeek (best cost-benefit in the paper) and other LLMs for comparison
 
 # Windows
-python main.py --input test\openvas\OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test_deepseek
-python main.py --input test\openvas\OpenVAS_JuiceShop.pdf --llm gpt4 --scanner openvas --allow-duplicates --output-file openvas_test_gpt4
-python main.py --input test\openvas\OpenVAS_JuiceShop.pdf --llm llama3 --scanner openvas --allow-duplicates --output-file openvas_test_llama3
+python main.py --input baselines\openvas\OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test_deepseek
 
 # Linux/macOS
 python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm deepseek --scanner openvas --allow-duplicates --output-file openvas_test_deepseek
-python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm gpt4 --scanner openvas --allow-duplicates --output-file openvas_test_gpt4
-python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm llama3 --scanner openvas --allow-duplicates --output-file openvas_test_llama3
 ```
 
 **Expected time**: ~12 minutes for all extractions
 
 - Deepseek: ~6 minutes
-- GPT4: ~5 minutes
-- LLAMA3: ~45 seconds
 
 **Expected result**: openvas_test<llm_name>.json files with extracted vulnerabilities containing fields like `Name`, `description`, `severity`, `cvss`, `port`, `references`, etc.
 
@@ -217,12 +209,12 @@ python3 main.py --input test/openvas/OpenVAS_JuiceShop.pdf --llm llama3 --scanne
 # Evaluate with BERTScore and ROUGE-L
 
 # Windows
-python metrics/bert/compare_extractions_bert.py --baseline-file test\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_bert --allow-duplicates
-python metrics/rouge/compare_extractions_rouge.py --baseline-file test\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_rouge --allow-duplicates
+python metrics/bert/compare_extractions_bert.py --baseline-file baselines\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_bert --allow-duplicates
+python metrics/rouge/compare_extractions_rouge.py --baseline-file baselines\openvas\OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_rouge --allow-duplicates
 
 # Linux/macOS
-python3 metrics/bert/compare_extractions_bert.py --baseline-file test/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_bert --allow-duplicates
-python3 metrics/rouge/compare_extractions_rouge.py --baseline-file test/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_rouge --allow-duplicates
+python3 metrics/bert/compare_extractions_bert.py --baseline-file baselines/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_bert --allow-duplicates
+python3 metrics/rouge/compare_extractions_rouge.py --baseline-file baselines/openvas/OpenVAS_JuiceShop.xlsx --extraction-file openvas_test_deepseek.json --model deepseek --output-dir results_rouge --allow-duplicates
 ```
 
 **Expected time**: ~15 seconds for BERT and ~3 seconds for ROUGE
@@ -239,10 +231,10 @@ python3 metrics/rouge/compare_extractions_rouge.py --baseline-file test/openvas/
 # Run full experiment suite
 
 # Windows
-python tools/run_experiments.py --input-dir test\openvas --llm deepseek --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
+python tools/run_experiments.py --input-dir baselines\openvas --llm deepseek --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
 
 # Linux/macOS
-python3 tools/run_experiments.py --input-dir test/openvas --llm deepseek --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
+python3 tools/run_experiments.py --input-dir baselines/openvas --llm deepseek --scanner openvas --metrics bert rouge --runs-per-model 5 --allow-duplicates
 ```
 
 **Expected time**: ~40 minutes
