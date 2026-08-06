@@ -47,9 +47,17 @@ Each run produces sheets for Summary, Overview (global + per-version), All LLMs,
 ```bash
 # Windows
 python tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm deepseek --convert csv [--allow-duplicates] [--output-dir <output_directory>]
+python tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm gpt4 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
+python tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm gpt5 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
+python tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm llama4 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
+python tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm llama3 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
 
 # Linux/macOS
 python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm deepseek --convert csv [--allow-duplicates] [--output-dir <output_directory>]
+python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm gpt4 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
+python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm gpt5 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
+python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm llama4 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
+python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm llama3 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
 
 ```
 
