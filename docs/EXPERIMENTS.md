@@ -65,7 +65,7 @@ python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm
 
 - Runs extraction for every (report, LLM, run) combination, then runs all metrics in a parallel post-pass via `tools/TMM_metrics_run.py`
 
-**Parameters:**
+**Main Parameters:**
 
 - `--input-dir`: Directory containing paired .xlsx (baseline) and .pdf (report) files
 - `--llm`: Space-separated LLMs to test (e.g., `deepseek gpt4 llama3`)
