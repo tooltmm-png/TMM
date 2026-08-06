@@ -64,7 +64,6 @@ python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm
 **Key Features:**
 
 - Runs extraction for every (report, LLM, run) combination, then runs all metrics in a parallel post-pass via `tools/TMM_metrics_run.py`
-- One scanner per invocation — run twice for different scanners
 
 **Parameters:**
 
