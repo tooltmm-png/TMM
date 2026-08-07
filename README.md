@@ -58,7 +58,7 @@ The following badges are considered for evaluation: **Available**, **Functional*
 | -------- | --------------------- |
 | OpenAI   | GPT-4, GPT-5          |
 | Groq     | Llama3, Llama4        |
-| DeepSeek | deepseek-chat         |
+| DeepSeek | deepseek-code         |
 
 ## Dependencies
 
@@ -107,7 +107,7 @@ See [docs/INSTALL.md](docs/INSTALL.md) for complete dependency details.
 
 ### 1. Clone the Repository
 
-git clone https://github.com/tooltmm-png/TMM.git
+-  `git clone https://github.com/tooltmm-png/TMM.git`
 
 ### 2. Create Virtual Environment
 
