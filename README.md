@@ -133,7 +133,7 @@ See [docs/INSTALL.md](docs/INSTALL.md) for complete dependency details.
 
 ### 1. Clone the Repository
 
--  `git clone https://github.com/tooltmm-png/TMM.git`
+```git clone https://github.com/tooltmm-png/TMM.git```
 
 ### 2. Create Virtual Environment
 
