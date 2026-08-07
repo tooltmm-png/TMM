@@ -176,6 +176,8 @@ cp .env.example .env
 API_KEY_DEEPSEEK = "your-deepseek-api-key"
 ```
 
+> **For reviewers**: the DeepSeek API key used to produce the results in the paper is provided in the appendix submitted to HotCRP, and can also be requested through the HotCRP messaging channel. Only a DeepSeek key is needed to reproduce Claims #1 and #2 below (Claim #3 uses pre-computed CSVs and makes no API calls).
+
 See [docs/CONFIG.md](docs/CONFIG.md) for all configuration options.
 
 ## Minimum Test
@@ -215,6 +217,8 @@ python3 tools/summarize_vulnerabilities.py --input openvas_test.json
 This section describes how to reproduce the main claims from the paper.
 
 > **Note**: The execution times are based on AMD Ryzen 5 5600G, 32GB RAM, 1TB SSD, Windows 11. Actual times may vary depending on system specifications, network latency, and API response times.
+
+> **For reviewers**: Claims #1 and #2 require a DeepSeek API key (see [Configure API Keys](#4-configure-api-keys)); Claim #3 needs no API key.
 
 ### Claim #1: Multi-LLM Vulnerability Extraction
 
