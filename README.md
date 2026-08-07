@@ -1,7 +1,8 @@
 <div align="center">
 
 
-**TMM - Vulnerability Extraction from Security Reports using LLMs**
+**TMM: An LLM-Based Tool for Structuring Vulnerability
+Scanner Reports**
 
 _Automated · Structured · Multi-LLM_
 
