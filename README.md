@@ -10,6 +10,8 @@ _Automated · Structured · Multi-LLM_
 ![status](https://img.shields.io/badge/status-active-orange)
 ![update](https://img.shields.io/badge/last%20update-Aug%202026-lightgrey)
 
+[![Watch the demo video](https://img.youtube.com/vi/HHt8c_PofC0/maxresdefault.jpg)](https://www.youtube.com/watch?v=HHt8c_PofC0)
+
 </div>
 
 # TMM
