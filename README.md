@@ -14,7 +14,17 @@ _Automated · Structured · Multi-LLM_
 
 # TMM
 
-**TMM** is an automated tool for extracting and structuring vulnerabilities from heterogeneous PDF reports produced by security scanners. Its LLM-based pipeline combines adaptive chunking and scanner-aware prompting to convert unstructured findings into consistent, analysis-ready vulnerability records, with standardized outputs and quality validation.
+**TMM** Vulnerability scanners produce heterogeneous, vendor-specific PDF
+reports that hinder automated analysis and vulnerability management. We present
+TMM, an open-source tool that uses LLMs to extract structured records from these
+reports into a canonical 18-field schema via a segment-prompt-validate pipeline.
+Evaluated on 129 OpenVAS reports (6,343 findings) across three pipeline versions
+and five LLMs, TMM raises aggregate correctness from 67.5% to 78.3% and cuts
+omission from 14.1% to 2.8%; DeepSeek offers the best balance, tying for the
+lowest omission (2.7%) and posting the lowest hallucination (4.1%). TMM turns
+archived scanner PDFs into queryable data for CSIRT triage, prioritization, and
+tracking.
+
 
 
 
