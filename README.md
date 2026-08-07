@@ -1,7 +1,7 @@
 <div align="center">
 
 
-**TMM: An LLM-Based Tool for Structuring Vulnerability
+#**TMM: An LLM-Based Tool for Structuring Vulnerability
 Scanner Reports**
 
 _Automated · Structured · Multi-LLM_
@@ -13,7 +13,6 @@ _Automated · Structured · Multi-LLM_
 
 </div>
 
-# TMM
 
 **TMM** Vulnerability scanners produce heterogeneous, vendor-specific PDF
 reports that hinder automated analysis and vulnerability management. We present
