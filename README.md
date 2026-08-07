@@ -31,7 +31,6 @@ tracking.
 **Use Cases:**
 
 - **Security Analysis**: Automated extraction of vulnerabilities from scanner reports
-- **Enterprise Integration**: Support for CAIS formats for corporate systems
 - **Research and Development**: Comparative evaluation of different LLMs
 
 ## README Structure
