@@ -76,6 +76,8 @@ python-dotenv==1.2.2       # Environment variables
 
 ```pip-requirements
 pdfplumber==0.11.9         # PDF text extraction
+marker-pdf==1.10.2         # Optional: Marker-based layout-aware PDF loader (loaded on demand)
+playwright==1.60.0         # Required by marker-pdf for rendering
 ```
 
 ### UI/UX - Progress Bars and Feedback
@@ -114,7 +116,6 @@ seaborn==0.13.2            # Visualization
 
 ```pip-requirements
 jinja2==3.1.6              # HTML report generation
-kaleido==1.2.0             # Static image export for charts
 ```
 
 > **Note:** All versions are pinned in both `pyproject.toml` and `requirements.txt` for stability. `uv sync` reads from `pyproject.toml`; `pip install -r requirements.txt` uses the flat file — both install the same packages.
