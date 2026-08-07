@@ -5,10 +5,10 @@
 
 _Automated · Structured · Multi-LLM_
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue)
+![Python](https://img.shields.io/badge/Python-3.11+-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![status](https://img.shields.io/badge/status-active-orange)
-![update](https://img.shields.io/badge/last%20update-Mar%202026-lightgrey)
+![update](https://img.shields.io/badge/last%20update-Aug%202026-lightgrey)
 
 </div>
 
@@ -27,6 +27,7 @@ _Automated · Structured · Multi-LLM_
 ## README Structure
 
 - [Considered Badges](#considered-badges)
+- [Repository Structure](#repository-structure)
 - [Basic Information](#basic-information)
 - [Dependencies](#dependencies)
 - [Security Concerns](#security-concerns)
@@ -40,6 +41,20 @@ _Automated · Structured · Multi-LLM_
 
 The following badges are considered for evaluation: **Available**, **Functional**, **Sustainable**, and **Reproducible**.
 
+## Repository Structure
+
+| Path            | Description                                                          |
+| ---------------- | --------------------------------------------------------------------- |
+| `main.py`        | CLI entry point for a single PDF extraction                          |
+| `src/`           | Extraction pipeline: LLM/scanner configs, converters, scanner strategies, chunking and PDF-loading utilities |
+| `metrics/`       | Evaluation battery: scorers, comparison pipelines, aggregators, entity/inter-rater checks, plotting |
+| `tools/`         | Orchestration scripts: batch extraction, consolidated metrics report, dataset/report generation |
+| `docs/`          | Detailed documentation (installation, usage, architecture, experiments, etc.) |
+| `baselines/`     | Curated ground-truth baselines (PDF + XLSX) used by the minimum test and Claims |
+| `dockers/`       | The 129 OpenVAS PDF reports used for the multi-version (V1/V2/V3) experiment |
+| `artifacts/`     | Per-version extraction datasets and consolidated metrics reports (`v1/`, `v2/`, `v3/`) |
+| `imgs/`          | Documentation images                                                  |
+
 ## Basic Information
 
 ### Execution Environment
@@ -47,18 +62,29 @@ The following badges are considered for evaluation: **Available**, **Functional*
 | Component   | Requirement                                      |
 | ----------- | ------------------------------------------------ |
 | **OS**      | Windows 10+, Linux (Ubuntu 20.04+), macOS 10.15+ |
-| **Python**  | 3.8+ (recommended: 3.10+)                        |
+| **Python**  | 3.11+                                             |
 | **RAM**     | 4GB+ (8GB recommended for large PDFs)            |
 | **Disk**    | 500MB for dependencies + space for outputs       |
 | **Network** | Internet connection required for LLM API calls   |
 
 ### Supported LLMs
 
-| Provider | Models                |
-| -------- | --------------------- |
-| OpenAI   | GPT-4, GPT-5          |
-| Groq     | Llama3, Llama4        |
-| DeepSeek | deepseek-code         |
+**Cloud (API key required):**
+
+| Provider | Models                              |
+| -------- | ------------------------------------ |
+| OpenAI   | GPT-4 (`gpt-4o-mini`), GPT-5 (`gpt-5-mini`) |
+| Groq     | Llama3, Llama4, Qwen3                |
+| DeepSeek | `deepseek-coder`                     |
+
+**Local (no API key; requires a local server running):**
+
+| Provider  | Models                          |
+| --------- | -------------------------------- |
+| Ollama    | Gemma4, Mistral, Qwen3.5         |
+| LM Studio | Granite4                         |
+
+Local models are not required to reproduce the paper's claims; see [docs/EXTENSIBILITY.md](docs/EXTENSIBILITY.md) for provider details.
 
 ## Dependencies
 
@@ -129,7 +155,11 @@ pip install -r requirements.txt
 
 ### 4. Configure API Keys
 
-Create/edit the `.env` file:
+Copy `.env.example` to `.env` and fill in the key(s) for the provider(s) you'll use:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 API_KEY_DEEPSEEK = "your-deepseek-api-key"

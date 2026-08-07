@@ -2,9 +2,38 @@
 
 This document describes the experiments conducted to validate TMM, as presented in the paper.
 
+## Ground Truth Curated Baselines
+
+The model selection for dataset extraction was based on empirical evaluation of five LLMs against three manually constructed baselines (ground truth):
+
+| Baseline           | Critical | High   | Medium | Low   | Log    | **Total** |
+| ------------------ | -------- | ------ | ------ | ----- | ------ | --------- |
+| Artifactory 5.11.0 | 9        | 62     | 31     | 3     | 20     | **125**   |
+| Juice Shop         | 0        | 2      | 3      | 0     | 29     | **34**    |
+| bBWA               | 0        | 19     | 36     | 3     | 0      | **58**    |
+| **Total**          | **9**    | **83** | **70** | **6** | **49** | **217**   |
+
+These baselines were constructed by two security specialists and serve as ground truth for evaluating extraction quality.
+
+## Evaluation Metrics to Curated Baselines
+
+Extraction quality is measured using two complementary dimensions:
+
+1. **BERTScore**: Global semantic similarity
+2. **ROUGE-L**: Structural textual proximity
+
+Results are categorized into similarity bands:
+
+- **Highly Similar**: ≥ 0.7
+- **Moderately Similar**: 0.6 - 0.7
+- **Slight Similarity**: 0.4 - 0.6
+- **Divergent**: < 0.4
+- **Absent**: Vulnerability in baseline but not extracted
+- **Excedent**: Vulnerability extracted but not in baseline
+
 ## LLM Comparison Results
 
-### Per-Version Extraction Datasets (129 Docker Reports)
+### Per-Version Extraction Datasets (129 Docker Reports) for Native Baseline
 
 The 129 OpenVAS PDF reports in [`dockers/`](../dockers/) (see [docs/INVENTORY.md](INVENTORY.md) for the full container list) were extracted by all 5 LLMs across 3 pipeline iterations (V1, V2, V3), each consolidated into a per-LLM CSV dataset under `artifacts/<version>/openvas_129_dockers/` and evaluated against the same ground-truth baseline ([`baselines/native/vulnnet_scans_openvas.csv`](../baselines/native/vulnnet_scans_openvas.csv)):
 
@@ -19,6 +48,19 @@ The 129 OpenVAS PDF reports in [`dockers/`](../dockers/) (see [docs/INVENTORY.md
 Row counts are raw extracted entries per dataset (pre host+name matching against the baseline). The drop and convergence from V1 to V3 reflects successive fixes to the extraction/consolidation pipeline, reducing duplicate/split entries across LLMs.
 
 Metrics for each version (and a combined V1+V2+V3 comparison) are computed with [`tools/TMM_metrics_run.py`](../tools/TMM_metrics_run.py) — see the "Consolidated Multi-LLM Metrics Report" claim in the main [README](../README.md#experiments) for the exact commands, producing `artifacts/<version>/TMM_metrics_<version>.xlsx` and `artifacts/TMM_metrics_all_versions.xlsx`.
+
+### Token Consumption and Cost (TMMv3 Batch)
+
+Tokens and cost per model in the TMMv3 batch (129 PDFs per model):
+
+| Model     | Version                             | Input tokens   | Output tokens  | Cost         | Cost/PDF   |
+| --------- | ------------------------------------ | -------------: | -------------: | -----------: | ---------: |
+| DeepSeek  | `deepseek-coder`                     | 22,867,811     | 4,863,716      | US$4.56      | US$0.035   |
+| GPT-4     | `gpt-4o-mini-2024-07-18`             | 13,355,126     | 5,229,819      | US$5.14      | US$0.040   |
+| GPT-5     | `gpt-5-mini-2025-08-07`              | 22,092,445     | 4,505,512      | US$44.13     | US$0.342   |
+| LLaMA 3   | `llama-3.3-70b-versatile`            | 16,528,717     | 7,668,978      | US$15.81     | US$0.123   |
+| LLaMA 4   | `llama-4-scout-17b-16e-instruct`     | 14,243,919     | 7,659,172      | US$4.17      | US$0.032   |
+| **Total** | --                                    | **89,088,018** | **29,927,197** | **US$73.82** | --         |
 
 ## Running Experiments
 
@@ -60,36 +102,3 @@ python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm
 python3 tools/batch_pdf_extractor.py --input-dir dockers --scanner openvas --llm llama3 --convert csv [--allow-duplicates] [--output-dir <output_directory>]
 
 ```
-
-**Key Features:**
-
-- Runs extraction for every (report, LLM, run) combination, then runs all metrics in a parallel post-pass via `tools/TMM_metrics_run.py`
-
-**Main Parameters:**
-
-- `--input-dir`: Directory containing paired .xlsx (baseline) and .pdf (report) files
-- `--llm`: Space-separated LLMs to test (e.g., `deepseek gpt4 llama3`)
-- `--scanner`: Scanner to use (`openvas` or `tenable`)
-- `--metrics`: Methods to run (`bert`, `rouge`, `entity`, `schema`, `severity`, `coverage`, or `all`). Producer/consumer dependencies auto-resolved.
-- `--runs-per-model`: Number of runs per combination (default: 10)
-- `--allow-duplicates`: Flag to allow duplicates (recommended for OpenVAS; omit for Tenable)
-- `--output-dir`: Results root directory (default: `results_runs`)
-- `--metrics-workers`: Parallel workers for the post-extraction metrics pass (default: 4)
-- `--skip-metrics`: Skip the metrics + aggregator post-pass
-- `--checkpoint-file`: Checkpoint file to resume from
-
-## Deduplication Strategies
-
-### OpenVAS
-
-- `--allow-duplicates` (**recommended**): uses custom strategy for maximum granularity
-- Removes only exact duplicates (same Name, port, protocol)
-- Legitimate vulnerabilities may repeat on different ports
-
-### Tenable WAS
-
-- Without `--allow-duplicates` (**recommended**): uses custom strategy for smart merge
-- Groups instances/bases of the same type
-- Consolidates arrays (URLs, description, etc.)
-
-These strategies were designed to balance granularity and efficiency, avoiding vulnerability exceedances and respecting the structure of each scanner.

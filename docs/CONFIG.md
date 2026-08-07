@@ -8,7 +8,11 @@ API keys are configured via **environment variables** in the `.env` file. The sy
 
 ### 1. Configure the .env file
 
-Edit the existing `.env` file with your API keys:
+Copy `.env.example` to `.env` and fill in your API keys:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 API_KEY_DEEPSEEK = "your-deepseek-api-key"
